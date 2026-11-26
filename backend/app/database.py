@@ -1,3 +1,4 @@
+
 from collections.abc import Generator
 
 from sqlalchemy import create_engine
@@ -10,11 +11,15 @@ class Base(DeclarativeBase):
     pass
 
 
+connect_args = {}
+
+if settings.database_url.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+
 engine = create_engine(
     settings.database_url,
-    connect_args={"check_same_thread": False},
+    connect_args=connect_args,
 )
-
 
 SessionLocal = sessionmaker(
     bind=engine,
@@ -25,7 +30,6 @@ SessionLocal = sessionmaker(
 
 def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
-
     try:
         yield db
     finally:
@@ -33,6 +37,6 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def create_tables() -> None:
-    from .models import User
+    from . import models
 
     Base.metadata.create_all(bind=engine)
