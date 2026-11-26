@@ -1,0 +1,29 @@
+[project]
+name = "ai-job-track1"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Shubham Shekhawat", email = "shubhamshekhawat012@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.141.1",
+    "google-genai>=2.25.0",
+    "pwdlib[argon2]>=0.3.1",
+    "pydantic-settings>=2.15.0",
+    "pydantic[email]>=2.13.5",
+    "pypdf>=6.19.0",
+    "python-docx>=1.2.0",
+    "python-jose>=3.5.0",
+    "python-multipart>=0.0.32",
+    "sqlalchemy>=2.0.54",
+    "uvicorn[standard]>=0.53.0",
+]
+
+[project.scripts]
+ai-job-track1 = "ai_job_track1:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
