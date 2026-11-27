@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -15,8 +16,6 @@ import {
   Target,
   Wand2,
   MessageSquare,
-  Clock,
-  CheckCircle2,
   Calendar,
 } from 'lucide-react'
 import {
@@ -38,23 +37,23 @@ export default function Dashboard() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true)
+        const res = await api.get('/ai/dashboard-analytics')
+        setAnalytics(res.data)
+        setError(null)
+      } catch (err) {
+        console.error('Failed to load dashboard analytics', err)
+        setError('Could not fetch analytics data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchDashboardData()
   }, [])
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true)
-      const res = await api.get('/ai/dashboard-analytics')
-      setAnalytics(res.data)
-    } catch (err) {
-      console.error('Failed to load dashboard analytics', err)
-      setError('Could not fetch analytics data')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Format status chart data
   const statusColors = {
     Applied: '#3b82f6',
     Screening: '#f59e0b',
@@ -125,48 +124,47 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="page-container animate-fade-in">
-      {/* Top Banner */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          marginBottom: '2rem',
-        }}
-      >
-        <div>
-          <h1
-            style={{
-              fontSize: 'var(--font-3xl)',
-              fontWeight: 700,
-              color: 'var(--text-heading)',
-              letterSpacing: '-0.02em',
-            }}
-          >
+    <div className="page-container animate-fade-in dashboard-page">
+
+      {/* Welcome Header */}
+      <section className="dashboard-header">
+        <div className="dashboard-welcome">
+          <h1>
             Welcome back, {user?.full_name?.split(' ')[0] || 'Explorer'} 👋
           </h1>
-          <p style={{ color: 'var(--text-secondary)', marginTop: '0.25rem', fontSize: 'var(--font-base)' }}>
-            Track your pipeline, monitor application status, and leverage GenAI intelligence.
+          <p>
+            Track your pipeline, monitor application status, and leverage
+            GenAI intelligence.
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button onClick={() => navigate('/jobs')} className="btn btn-secondary btn-sm">
+        <div className="dashboard-actions">
+          <button
+            onClick={() => navigate('/jobs')}
+            className="btn btn-secondary btn-sm"
+          >
             <Briefcase size={16} />
             <span>Browse Jobs</span>
           </button>
-          <button onClick={() => navigate('/ai/resume-analyzer')} className="btn btn-primary btn-sm">
+
+          <button
+            onClick={() => navigate('/ai/resume-analyzer')}
+            className="btn btn-primary btn-sm"
+          >
             <Sparkles size={16} />
             <span>Analyze Resume</span>
           </button>
         </div>
-      </div>
+      </section>
 
-      {/* 4 StatCards */}
-      <div className="grid-4" style={{ marginBottom: '2rem' }}>
+      {error && (
+        <div className="dashboard-error">
+          {error}. Please refresh the page and try again.
+        </div>
+      )}
+
+      {/* Statistics */}
+      <section className="grid-4 dashboard-stats">
         <StatCard
           title="Total Open Jobs"
           value={loading ? '...' : analytics?.total_jobs ?? 0}
@@ -174,6 +172,7 @@ export default function Dashboard() {
           gradient="var(--gradient-purple)"
           delay={0}
         />
+
         <StatCard
           title="Applications Sent"
           value={loading ? '...' : analytics?.total_applications ?? 0}
@@ -181,6 +180,7 @@ export default function Dashboard() {
           gradient="var(--gradient-blue)"
           delay={50}
         />
+
         <StatCard
           title="Saved Bookmarks"
           value={loading ? '...' : analytics?.total_saved_jobs ?? 0}
@@ -188,6 +188,7 @@ export default function Dashboard() {
           gradient="var(--gradient-teal)"
           delay={100}
         />
+
         <StatCard
           title="Uploaded Resumes"
           value={loading ? '...' : analytics?.total_resumes ?? 0}
@@ -195,35 +196,28 @@ export default function Dashboard() {
           gradient="var(--gradient-amber)"
           delay={150}
         />
-      </div>
+      </section>
 
-      {/* Analytics & Pipeline Status Section */}
-      <div className="grid-2" style={{ marginBottom: '2.5rem' }}>
-        {/* Application Stage Breakdown */}
-        <div className="card">
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '1.5rem',
-            }}
-          >
+      {/* Analytics and AI Tools */}
+      <section className="grid-2 dashboard-main-grid">
+
+        {/* Application Pipeline Chart */}
+        <div className="card dashboard-panel">
+          <div className="dashboard-section-heading">
             <div>
-              <h3 style={{ fontSize: 'var(--font-lg)', fontWeight: 600, color: 'var(--text-heading)' }}>
-                Application Pipeline Stages
-              </h3>
-              <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
-                Distribution across hiring stages
-              </p>
+              <h3>Application Pipeline Stages</h3>
+              <p>Distribution across hiring stages</p>
             </div>
             <TrendingUp size={20} color="var(--accent-primary)" />
           </div>
 
           {chartData.length > 0 ? (
-            <div style={{ width: '100%', height: 260 }}>
+            <div className="dashboard-chart">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                >
                   <XAxis
                     dataKey="name"
                     stroke="var(--text-muted)"
@@ -231,6 +225,7 @@ export default function Dashboard() {
                     tickLine={false}
                     axisLine={{ stroke: 'var(--border-primary)' }}
                   />
+
                   <YAxis
                     stroke="var(--text-muted)"
                     fontSize={12}
@@ -238,6 +233,7 @@ export default function Dashboard() {
                     tickLine={false}
                     axisLine={{ stroke: 'var(--border-primary)' }}
                   />
+
                   <Tooltip
                     contentStyle={{
                       backgroundColor: 'var(--bg-card)',
@@ -247,115 +243,73 @@ export default function Dashboard() {
                     }}
                     itemStyle={{ color: 'var(--text-primary)' }}
                   />
+
                   <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                     {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.color}
+                      />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div style={{ padding: '2rem 0', textAlign: 'center' }}>
-              <p style={{ color: 'var(--text-muted)', fontSize: 'var(--font-sm)' }}>
-                No active applications yet. Apply to jobs to see your pipeline metrics!
+            <div className="dashboard-empty-chart">
+              <p>
+                {loading
+                  ? 'Loading application analytics...'
+                  : 'No active applications yet. Apply to jobs to see your pipeline metrics!'}
               </p>
-              <button
-                onClick={() => navigate('/jobs')}
-                className="btn btn-secondary btn-sm"
-                style={{ marginTop: '1rem' }}
-              >
-                Explore Jobs
-              </button>
+
+              {!loading && (
+                <button
+                  onClick={() => navigate('/jobs')}
+                  className="btn btn-secondary btn-sm"
+                >
+                  Explore Jobs
+                </button>
+              )}
             </div>
           )}
         </div>
 
-        {/* AI Career Suite Launchpad */}
-        <div className="card">
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '1.25rem',
-            }}
-          >
+        {/* AI Career Suite */}
+        <div className="card dashboard-panel">
+          <div className="dashboard-section-heading">
             <div>
-              <h3 style={{ fontSize: 'var(--font-lg)', fontWeight: 600, color: 'var(--text-heading)' }}>
-                AI Career Copilot
-              </h3>
-              <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
-                Intelligent career accelerators
-              </p>
+              <h3>AI Career Copilot</h3>
+              <p>Intelligent career accelerators</p>
             </div>
             <Sparkles size={20} color="var(--accent-secondary)" />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div className="dashboard-ai-tools">
             {aiTools.map((tool) => {
               const Icon = tool.icon
+
               return (
                 <Link
                   key={tool.title}
                   to={tool.path}
+                  className="dashboard-ai-tool"
                   style={{
-                    padding: '1rem',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--border-primary)',
                     background: tool.gradient,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    transition: 'all var(--transition-fast)',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = tool.color
-                    e.currentTarget.style.transform = 'translateY(-2px)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--border-primary)'
-                    e.currentTarget.style.transform = 'none'
+                    '--tool-color': tool.color,
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                    <div
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: 'var(--radius-sm)',
-                        background: 'rgba(255, 255, 255, 0.1)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
+                  <div className="dashboard-ai-tool-heading">
+                    <div className="dashboard-ai-tool-icon">
                       <Icon size={16} color={tool.color} />
                     </div>
-                    <span style={{ fontSize: 'var(--font-sm)', fontWeight: 600, color: 'var(--text-primary)' }}>
-                      {tool.title}
-                    </span>
+
+                    <span>{tool.title}</span>
                   </div>
-                  <p
-                    style={{
-                      fontSize: '0.75rem',
-                      color: 'var(--text-secondary)',
-                      lineHeight: 1.4,
-                      marginBottom: '0.5rem',
-                    }}
-                  >
-                    {tool.description}
-                  </p>
-                  <div
-                    style={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      color: tool.color,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                    }}
-                  >
+
+                  <p>{tool.description}</p>
+
+                  <div className="dashboard-ai-tool-link">
                     Launch Tool <ArrowRight size={12} />
                   </div>
                 </Link>
@@ -363,85 +317,53 @@ export default function Dashboard() {
             })}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Recent Applications Section */}
-      <div className="card">
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1.25rem',
-          }}
-        >
+      {/* Recent Applications */}
+      <section className="card dashboard-recent-section">
+        <div className="dashboard-section-heading dashboard-recent-heading">
           <div>
-            <h3 style={{ fontSize: 'var(--font-lg)', fontWeight: 600, color: 'var(--text-heading)' }}>
-              Recent Applications
-            </h3>
-            <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
-              Latest job applications and their current progression
-            </p>
+            <h3>Recent Applications</h3>
+            <p>Latest job applications and their current progression</p>
           </div>
-          <Link
-            to="/applications"
-            style={{
-              fontSize: 'var(--font-sm)',
-              fontWeight: 500,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-            }}
-          >
+
+          <Link to="/applications" className="dashboard-view-all">
             View All Applications <ArrowRight size={14} />
           </Link>
         </div>
 
         {analytics?.recent_applications?.length > 0 ? (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <div className="dashboard-table-wrap">
+            <table className="dashboard-table">
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-primary)' }}>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
-                    ROLE & COMPANY
-                  </th>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
-                    STAGE
-                  </th>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
-                    APPLIED ON
-                  </th>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: 'var(--font-xs)', color: 'var(--text-muted)', textAlign: 'right' }}>
-                    ACTION
-                  </th>
+                <tr>
+                  <th>ROLE & COMPANY</th>
+                  <th>STAGE</th>
+                  <th>APPLIED ON</th>
+                  <th className="dashboard-action-column">ACTION</th>
                 </tr>
               </thead>
+
               <tbody>
                 {analytics.recent_applications.map((app) => (
-                  <tr
-                    key={app.application_id}
-                    style={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
-                      transition: 'background var(--transition-fast)',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                  >
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ fontWeight: 600, color: 'var(--text-heading)' }}>
+                  <tr key={app.application_id}>
+                    <td>
+                      <div className="dashboard-job-title">
                         {app.job_title}
                       </div>
-                      <div style={{ fontSize: 'var(--font-xs)', color: 'var(--text-secondary)' }}>
+                      <div className="dashboard-company">
                         {app.company}
                       </div>
                     </td>
-                    <td style={{ padding: '1rem' }}>
+
+                    <td>
                       <span className={`badge ${getStatusBadgeClass(app.status)}`}>
                         {app.status}
                       </span>
                     </td>
-                    <td style={{ padding: '1rem', fontSize: 'var(--font-sm)', color: 'var(--text-muted)' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+
+                    <td>
+                      <span className="dashboard-date">
                         <Calendar size={14} />
                         {new Date(app.applied_at).toLocaleDateString(undefined, {
                           month: 'short',
@@ -450,11 +372,11 @@ export default function Dashboard() {
                         })}
                       </span>
                     </td>
-                    <td style={{ padding: '1rem', textAlign: 'right' }}>
+
+                    <td className="dashboard-action-column">
                       <button
                         onClick={() => navigate(`/jobs/${app.job_id}`)}
                         className="btn btn-secondary btn-sm"
-                        style={{ padding: '4px 10px', fontSize: '0.75rem' }}
                       >
                         Details
                       </button>
@@ -469,13 +391,16 @@ export default function Dashboard() {
             title="No applications tracked yet"
             description="Start applying to open opportunities or log external applications to monitor your progress."
             action={
-              <button onClick={() => navigate('/jobs')} className="btn btn-primary btn-sm">
+              <button
+                onClick={() => navigate('/jobs')}
+                className="btn btn-primary btn-sm"
+              >
                 Browse Available Jobs
               </button>
             }
           />
         )}
-      </div>
+      </section>
     </div>
   )
 }

@@ -1,7 +1,16 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { Zap, Mail, Lock, User, ArrowRight, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import {
+  Zap,
+  Mail,
+  Lock,
+  User,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  AlertCircle,
+} from 'lucide-react'
 
 export default function Signup() {
   const [fullName, setFullName] = useState('')
@@ -38,13 +47,13 @@ export default function Signup() {
         password,
       })
 
-      // Automatically sign in upon successful registration
       await login(email, password)
       navigate('/dashboard')
     } catch (err) {
       console.error(err)
       setError(
-        err.response?.data?.detail || 'Failed to create account. Email may already be in use.'
+        err.response?.data?.detail ||
+          'Failed to create account. Email may already be in use.'
       )
     } finally {
       setLoading(false)
@@ -52,78 +61,25 @@ export default function Signup() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'var(--bg-primary)',
-        padding: '2rem 1rem',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Background Glow Accents */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '15%',
-          right: '25%',
-          width: '400px',
-          height: '400px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
-          filter: 'blur(60px)',
-          pointerEvents: 'none',
-        }}
-      />
+    <div className="signup-page">
+      <div className="signup-glow" />
 
-      <div
-        className="glass-card animate-fade-in-up"
-        style={{
-          width: '100%',
-          maxWidth: '460px',
-          padding: '2.5rem',
-          position: 'relative',
-          zIndex: 10,
-          boxShadow: 'var(--shadow-lg)',
-        }}
-      >
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div
-            style={{
-              width: 52,
-              height: 52,
-              borderRadius: 'var(--radius-lg)',
-              background: 'var(--gradient-purple)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 24px rgba(139, 92, 246, 0.4)',
-              marginBottom: '1rem',
-            }}
-          >
+      <div className="glass-card animate-fade-in-up signup-card">
+        <div className="signup-header">
+          <div className="signup-logo">
             <Zap size={28} color="white" />
           </div>
-          <h2
-            style={{
-              fontSize: 'var(--font-2xl)',
-              fontWeight: 700,
-              color: 'var(--text-heading)',
-              letterSpacing: '-0.02em',
-            }}
-          >
-            Join AI JobTrack
-          </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-sm)', marginTop: '0.25rem' }}>
+
+          <h2>Join AI JobTrack</h2>
+
+          <p>
             Elevate your job search with intelligent tracking & GenAI tools
           </p>
         </div>
 
         {error && (
-          <div className="alert alert-error">
-            <AlertCircle size={18} style={{ flexShrink: 0 }} />
+          <div className="alert alert-error signup-error">
+            <AlertCircle size={18} />
             <span>{error}</span>
           </div>
         )}
@@ -133,22 +89,14 @@ export default function Signup() {
             <label className="form-label" htmlFor="signup-name">
               Full Name
             </label>
-            <div style={{ position: 'relative' }}>
-              <User
-                size={18}
-                style={{
-                  position: 'absolute',
-                  left: 14,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                }}
-              />
+
+            <div className="signup-input-wrapper">
+              <User size={18} className="signup-input-icon" />
+
               <input
                 id="signup-name"
                 type="text"
-                className="form-input"
-                style={{ paddingLeft: '40px' }}
+                className="form-input signup-input"
                 placeholder="Sarah Connor"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -161,22 +109,14 @@ export default function Signup() {
             <label className="form-label" htmlFor="signup-email">
               Email Address
             </label>
-            <div style={{ position: 'relative' }}>
-              <Mail
-                size={18}
-                style={{
-                  position: 'absolute',
-                  left: 14,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                }}
-              />
+
+            <div className="signup-input-wrapper">
+              <Mail size={18} className="signup-input-icon" />
+
               <input
                 id="signup-email"
                 type="email"
-                className="form-input"
-                style={{ paddingLeft: '40px' }}
+                className="form-input signup-input"
                 placeholder="sarah@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -189,41 +129,31 @@ export default function Signup() {
             <label className="form-label" htmlFor="signup-password">
               Password
             </label>
-            <div style={{ position: 'relative' }}>
-              <Lock
-                size={18}
-                style={{
-                  position: 'absolute',
-                  left: 14,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                }}
-              />
+
+            <div className="signup-input-wrapper">
+              <Lock size={18} className="signup-input-icon" />
+
               <input
                 id="signup-password"
                 type={showPassword ? 'text' : 'password'}
-                className="form-input"
-                style={{ paddingLeft: '40px', paddingRight: '40px' }}
+                className="form-input signup-input signup-password-input"
                 placeholder="At least 6 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+
               <button
                 type="button"
+                className="signup-password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: 12,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? (
+                  <EyeOff size={18} />
+                ) : (
+                  <Eye size={18} />
+                )}
               </button>
             </div>
           </div>
@@ -232,22 +162,14 @@ export default function Signup() {
             <label className="form-label" htmlFor="signup-confirm-password">
               Confirm Password
             </label>
-            <div style={{ position: 'relative' }}>
-              <Lock
-                size={18}
-                style={{
-                  position: 'absolute',
-                  left: 14,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                }}
-              />
+
+            <div className="signup-input-wrapper">
+              <Lock size={18} className="signup-input-icon" />
+
               <input
                 id="signup-confirm-password"
                 type={showPassword ? 'text' : 'password'}
-                className="form-input"
-                style={{ paddingLeft: '40px' }}
+                className="form-input signup-input"
                 placeholder="Confirm password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -258,8 +180,7 @@ export default function Signup() {
 
           <button
             type="submit"
-            className="btn btn-primary"
-            style={{ width: '100%', marginTop: '1rem', padding: '12px' }}
+            className="btn btn-primary signup-submit"
             disabled={loading}
           >
             {loading ? (
@@ -273,26 +194,9 @@ export default function Signup() {
           </button>
         </form>
 
-        <div
-          style={{
-            marginTop: '2rem',
-            paddingTop: '1.5rem',
-            borderTop: '1px solid var(--border-primary)',
-            textAlign: 'center',
-            fontSize: 'var(--font-sm)',
-            color: 'var(--text-secondary)',
-          }}
-        >
+        <div className="signup-footer">
           Already have an account?{' '}
-          <Link
-            to="/login"
-            style={{
-              color: 'var(--accent-primary)',
-              fontWeight: 600,
-            }}
-          >
-            Sign In
-          </Link>
+          <Link to="/login">Sign In</Link>
         </div>
       </div>
     </div>

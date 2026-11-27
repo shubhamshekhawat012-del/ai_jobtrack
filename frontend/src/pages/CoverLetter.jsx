@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams, useNavigate, Link } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import api from '../services/api'
 import {
   Wand2,
@@ -11,7 +11,6 @@ import {
   RefreshCw,
   Sparkles,
   AlertCircle,
-  Edit3,
 } from 'lucide-react'
 
 export default function CoverLetter() {
@@ -58,6 +57,7 @@ export default function CoverLetter() {
       if (jData.length > 0 && !selectedJobId) {
         setSelectedJobId(jData[0].id.toString())
       }
+
       if (rData.length > 0 && !selectedResumeId) {
         setSelectedResumeId(rData[0].id.toString())
       }
@@ -82,6 +82,7 @@ export default function CoverLetter() {
         resume_id: parseInt(selectedResumeId),
         tone,
       })
+
       setCoverLetter(res.data.cover_letter)
     } catch (err) {
       console.error(err)
@@ -93,6 +94,7 @@ export default function CoverLetter() {
 
   const handleCopy = () => {
     if (!coverLetter) return
+
     navigator.clipboard.writeText(coverLetter)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
@@ -100,48 +102,60 @@ export default function CoverLetter() {
 
   const handleDownload = () => {
     if (!coverLetter) return
+
     const blob = new Blob([coverLetter], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
+
     a.href = url
     a.download = `cover_letter_job_${selectedJobId}.txt`
     a.click()
+
     URL.revokeObjectURL(url)
   }
 
   const wordCount = coverLetter ? coverLetter.trim().split(/\s+/).length : 0
 
   return (
-    <div className="page-container animate-fade-in">
-      <div className="page-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.2)', color: 'var(--accent-success)' }}>
+    <div className="page-container animate-fade-in cover-letter-page">
+
+      {/* Header */}
+      <div className="page-header cover-letter-header">
+        <div className="cover-letter-badge">
+          <span className="badge cover-letter-genai-badge">
             GENAI WRITING ASSISTANT
           </span>
         </div>
+
         <h1>AI Tailored Cover Letter Generator</h1>
+
         <p>
           Craft highly persuasive, bespoke cover letters strictly grounded in your actual verified
           experience and matching the targeted company's requirements.
         </p>
       </div>
 
+      {/* Error */}
       {error && (
-        <div className="alert alert-error">
+        <div className="alert alert-error cover-letter-error">
           <AlertCircle size={18} />
           <span>{error}</span>
         </div>
       )}
 
-      {/* Selectors and Settings Card */}
-      <div className="card" style={{ marginBottom: '2rem', backgroundColor: 'var(--bg-secondary)' }}>
-        <div className="grid-2" style={{ marginBottom: '1.5rem' }}>
-          {/* Select Resume */}
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      {/* Settings Card */}
+      <div className="card cover-letter-settings">
+
+        {/* Selectors */}
+        <div className="grid-2 cover-letter-selectors">
+
+          {/* Resume */}
+          <div className="form-group cover-letter-form-group">
+            <label className="form-label cover-letter-label">
               <FileText size={16} color="var(--accent-primary)" />
               <span>Resume to Source Experience From</span>
             </label>
+
             {resumes.length > 0 ? (
               <select
                 className="form-input form-select"
@@ -155,21 +169,20 @@ export default function CoverLetter() {
                 ))}
               </select>
             ) : (
-              <div style={{ fontSize: 'var(--font-sm)', color: 'var(--accent-warning)' }}>
+              <div className="cover-letter-empty">
                 No resumes uploaded.{' '}
-                <Link to="/resumes" style={{ textDecoration: 'underline' }}>
-                  Upload one now
-                </Link>
+                <Link to="/resumes">Upload one now</Link>
               </div>
             )}
           </div>
 
-          {/* Select Job */}
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {/* Job */}
+          <div className="form-group cover-letter-form-group">
+            <label className="form-label cover-letter-label">
               <Briefcase size={16} color="var(--accent-secondary)" />
               <span>Target Opportunity</span>
             </label>
+
             {jobs.length > 0 ? (
               <select
                 className="form-input form-select"
@@ -183,59 +196,39 @@ export default function CoverLetter() {
                 ))}
               </select>
             ) : (
-              <div style={{ fontSize: 'var(--font-sm)', color: 'var(--accent-warning)' }}>
+              <div className="cover-letter-empty">
                 No jobs available.{' '}
-                <Link to="/jobs" style={{ textDecoration: 'underline' }}>
-                  Post or browse jobs
-                </Link>
+                <Link to="/jobs">Post or browse jobs</Link>
               </div>
             )}
           </div>
+
         </div>
 
         {/* Tone Selector */}
-        <div style={{ marginBottom: '1.5rem' }}>
+        <div className="cover-letter-tone-section">
           <label className="form-label">Voice & Tone Archetype</label>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-              gap: '0.75rem',
-            }}
-          >
+
+          <div className="cover-letter-tone-grid">
             {tones.map((t) => {
               const isSelected = tone === t.id
+
               return (
                 <div
                   key={t.id}
                   onClick={() => setTone(t.id)}
-                  style={{
-                    padding: '0.75rem 1rem',
-                    borderRadius: 'var(--radius-md)',
-                    border: isSelected
-                      ? '1px solid var(--accent-primary)'
-                      : '1px solid var(--border-primary)',
-                    backgroundColor: isSelected
-                      ? 'var(--accent-primary-glow)'
-                      : 'var(--bg-card)',
-                    cursor: 'pointer',
-                    transition: 'all var(--transition-fast)',
-                  }}
+                  className={`cover-letter-tone-card ${
+                    isSelected ? 'selected' : ''
+                  }`}
                 >
-                  <div
-                    style={{
-                      fontSize: 'var(--font-sm)',
-                      fontWeight: 600,
-                      color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
+                  <div className="cover-letter-tone-title">
                     <span>{t.label}</span>
-                    {isSelected && <Check size={14} color="var(--accent-primary)" />}
+                    {isSelected && (
+                      <Check size={14} color="var(--accent-primary)" />
+                    )}
                   </div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+
+                  <div className="cover-letter-tone-description">
                     {t.desc}
                   </div>
                 </div>
@@ -244,16 +237,16 @@ export default function CoverLetter() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        {/* Generate Button */}
+        <div className="cover-letter-generate-wrapper">
           <button
             onClick={handleGenerate}
             disabled={generating || !selectedJobId || !selectedResumeId}
-            className="btn btn-primary"
-            style={{ padding: '12px 28px' }}
+            className="btn btn-primary cover-letter-generate-btn"
           >
             {generating ? (
               <>
-                <RefreshCw size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                <RefreshCw size={18} className="cover-letter-spin" />
                 <span>Drafting Tailored Letter...</span>
               </>
             ) : (
@@ -266,102 +259,81 @@ export default function CoverLetter() {
         </div>
       </div>
 
-      {/* Output Letter Area */}
+      {/* Loading */}
       {generating && (
-        <div className="card" style={{ padding: '3rem 2rem', textAlign: 'center' }}>
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #10b981, #059669)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '1rem',
-              boxShadow: '0 0 25px rgba(16, 185, 129, 0.4)',
-            }}
-          >
+        <div className="card cover-letter-loading">
+          <div className="cover-letter-loading-icon">
             <Sparkles size={28} color="white" />
           </div>
-          <h3 style={{ fontSize: 'var(--font-lg)', color: 'var(--text-heading)' }}>
-            Writing Your Custom Cover Letter
-          </h3>
-          <p style={{ color: 'var(--text-muted)', fontSize: 'var(--font-sm)', marginTop: '0.5rem' }}>
+
+          <h3>Writing Your Custom Cover Letter</h3>
+
+          <p>
             Aligning your accomplishments with company requirements in a {tone} tone...
           </p>
         </div>
       )}
 
+      {/* Generated Cover Letter */}
       {coverLetter && !generating && (
-        <div className="card animate-fade-in-up" style={{ padding: '2rem' }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              borderBottom: '1px solid var(--border-primary)',
-              paddingBottom: '1rem',
-              marginBottom: '1.5rem',
-              flexWrap: 'wrap',
-              gap: '1rem',
-            }}
-          >
-            <div>
-              <h2 style={{ fontSize: 'var(--font-xl)', fontWeight: 600, color: 'var(--text-heading)' }}>
-                Your Custom Cover Letter
-              </h2>
-              <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
+        <div className="card animate-fade-in-up cover-letter-output">
+
+          {/* Output Header */}
+          <div className="cover-letter-output-header">
+            <div className="cover-letter-output-info">
+              <h2>Your Custom Cover Letter</h2>
+
+              <span>
                 {wordCount} words • Tone: {tone.toUpperCase()} • Click to edit directly
               </span>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button onClick={handleCopy} className="btn btn-secondary btn-sm">
-                {copied ? <Check size={16} color="var(--accent-success)" /> : <Copy size={16} />}
+            <div className="cover-letter-actions">
+              <button
+                onClick={handleCopy}
+                className="btn btn-secondary btn-sm"
+              >
+                {copied ? (
+                  <Check size={16} color="var(--accent-success)" />
+                ) : (
+                  <Copy size={16} />
+                )}
+
                 <span>{copied ? 'Copied' : 'Copy Text'}</span>
               </button>
-              <button onClick={handleDownload} className="btn btn-secondary btn-sm">
+
+              <button
+                onClick={handleDownload}
+                className="btn btn-secondary btn-sm"
+              >
                 <Download size={16} />
                 <span>Download .txt</span>
               </button>
             </div>
           </div>
 
+          {/* Editable Letter */}
           <textarea
-            className="form-input form-textarea"
+            className="form-input form-textarea cover-letter-textarea"
             rows={16}
-            style={{
-              lineHeight: 1.8,
-              fontSize: 'var(--font-base)',
-              fontFamily: 'inherit',
-              padding: '1.5rem',
-              backgroundColor: 'rgba(10, 14, 26, 0.5)',
-              border: '1px solid var(--border-primary)',
-            }}
             value={coverLetter}
             onChange={(e) => setCoverLetter(e.target.value)}
           />
 
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: '1.25rem',
-              fontSize: 'var(--font-xs)',
-              color: 'var(--text-muted)',
-            }}
-          >
-            <span>Tip: You can edit or personalize any paragraph before copying.</span>
+          {/* Footer */}
+          <div className="cover-letter-output-footer">
+            <span>
+              Tip: You can edit or personalize any paragraph before copying.
+            </span>
+
             <Link
               to={`/jobs/${selectedJobId}`}
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: 'var(--font-xs)' }}
+              className="btn btn-secondary btn-sm cover-letter-back-btn"
             >
               Back to Job Specification
             </Link>
           </div>
+
         </div>
       )}
     </div>

@@ -2,15 +2,11 @@ import { useState } from 'react'
 import api from '../services/api'
 import {
   Compass,
-  Sparkles,
   Copy,
   Check,
   Download,
   RefreshCw,
   AlertCircle,
-  Lightbulb,
-  ArrowRight,
-  TrendingUp,
 } from 'lucide-react'
 
 export default function CareerAdvisor() {
@@ -54,6 +50,7 @@ export default function CareerAdvisor() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
     if (!careerGoal.trim() || !currentSkills.trim()) {
       setError('Career goal and current skills are required.')
       return
@@ -69,6 +66,7 @@ export default function CareerAdvisor() {
         experience_level: experienceLevel,
         interests: interests || null,
       })
+
       setAdvice(res.data.advice)
     } catch (err) {
       console.error(err)
@@ -80,6 +78,7 @@ export default function CareerAdvisor() {
 
   const handleCopy = () => {
     if (!advice) return
+
     navigator.clipboard.writeText(advice)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
@@ -87,50 +86,58 @@ export default function CareerAdvisor() {
 
   const handleDownload = () => {
     if (!advice) return
+
     const blob = new Blob([advice], { type: 'text/markdown' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
+
     a.href = url
     a.download = `career_advice_${careerGoal.replace(/\s+/g, '_').toLowerCase()}.md`
     a.click()
+
     URL.revokeObjectURL(url)
   }
 
   return (
-    <div className="page-container animate-fade-in">
-      <div className="page-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <span className="badge" style={{ background: 'rgba(139, 92, 246, 0.2)', color: 'var(--accent-primary)' }}>
+    <div className="page-container animate-fade-in career-advisor-page">
+
+      {/* Header */}
+      <div className="page-header career-advisor-header">
+        <div className="career-advisor-badge">
+          <span className="badge career-advisor-genai-badge">
             STRATEGIC CAREER COPILOT
           </span>
         </div>
+
         <h1>AI Strategic Career Advisor</h1>
+
         <p>
           Formulate personalized trajectory plans, identify critical skill gaps, and explore
           project portfolios designed to transition you into your dream role.
         </p>
       </div>
 
+      {/* Error */}
       {error && (
-        <div className="alert alert-error">
+        <div className="alert alert-error career-advisor-error">
           <AlertCircle size={18} />
           <span>{error}</span>
         </div>
       )}
 
-      {/* Quick Inspiration Presets */}
-      <div style={{ marginBottom: '1.5rem' }}>
-        <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}>
+      {/* Quick Presets */}
+      <div className="career-advisor-presets">
+        <span className="career-advisor-presets-label">
           💡 Popular Transition Trajectories (Click to prefill):
         </span>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+
+        <div className="career-advisor-presets-list">
           {quickPresets.map((p, i) => (
             <button
               key={i}
               type="button"
               onClick={() => handleApplyPreset(p)}
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: '0.75rem', padding: '4px 10px' }}
+              className="btn btn-secondary btn-sm career-advisor-preset-btn"
             >
               {p.goal}
             </button>
@@ -139,11 +146,17 @@ export default function CareerAdvisor() {
       </div>
 
       {/* Form Card */}
-      <div className="card" style={{ marginBottom: '2rem', backgroundColor: 'var(--bg-secondary)' }}>
+      <div className="card career-advisor-form-card">
         <form onSubmit={handleSubmit}>
-          <div className="grid-2">
-            <div className="form-group">
-              <label className="form-label">Desired Target Role / Career Goal *</label>
+
+          <div className="grid-2 career-advisor-form-grid">
+
+            {/* Career Goal */}
+            <div className="form-group career-advisor-form-group">
+              <label className="form-label">
+                Desired Target Role / Career Goal *
+              </label>
+
               <input
                 type="text"
                 className="form-input"
@@ -154,8 +167,12 @@ export default function CareerAdvisor() {
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Current Experience Level</label>
+            {/* Experience Level */}
+            <div className="form-group career-advisor-form-group">
+              <label className="form-label">
+                Current Experience Level
+              </label>
+
               <select
                 className="form-input form-select"
                 value={experienceLevel}
@@ -168,10 +185,15 @@ export default function CareerAdvisor() {
                 <option value="Executive">Executive / Director</option>
               </select>
             </div>
+
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Your Current Core Skills *</label>
+          {/* Skills */}
+          <div className="form-group career-advisor-form-group">
+            <label className="form-label">
+              Your Current Core Skills *
+            </label>
+
             <input
               type="text"
               className="form-input"
@@ -182,8 +204,12 @@ export default function CareerAdvisor() {
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Special Interests & Preferences (Optional)</label>
+          {/* Interests */}
+          <div className="form-group career-advisor-form-group">
+            <label className="form-label">
+              Special Interests & Preferences (Optional)
+            </label>
+
             <input
               type="text"
               className="form-input"
@@ -193,11 +219,16 @@ export default function CareerAdvisor() {
             />
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
-            <button type="submit" disabled={loading} className="btn btn-primary" style={{ padding: '12px 28px' }}>
+          {/* Submit */}
+          <div className="career-advisor-submit-wrapper">
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary career-advisor-submit-btn"
+            >
               {loading ? (
                 <>
-                  <RefreshCw size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                  <RefreshCw size={18} className="career-advisor-spin" />
                   <span>Synthesizing Advisory Strategy...</span>
                 </>
               ) : (
@@ -208,61 +239,73 @@ export default function CareerAdvisor() {
               )}
             </button>
           </div>
+
         </form>
       </div>
 
-      {/* Advisory Output View */}
+      {/* Loading */}
+      {loading && (
+        <div className="card career-advisor-loading">
+          <div className="career-advisor-loading-icon">
+            <Compass size={28} color="white" />
+          </div>
+
+          <h3>Building Your Career Strategy</h3>
+
+          <p>
+            Analyzing your skills, experience and career goals...
+          </p>
+        </div>
+      )}
+
+      {/* Advisory Output */}
       {advice && !loading && (
-        <div className="card animate-fade-in-up" style={{ padding: '2rem' }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              borderBottom: '1px solid var(--border-primary)',
-              paddingBottom: '1rem',
-              marginBottom: '1.5rem',
-              flexWrap: 'wrap',
-              gap: '1rem',
-            }}
-          >
-            <div>
-              <h2 style={{ fontSize: 'var(--font-xl)', fontWeight: 600, color: 'var(--text-heading)' }}>
-                Target Blueprint: {careerGoal}
-              </h2>
-              <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
+        <div className="card animate-fade-in-up career-advisor-output">
+
+          {/* Output Header */}
+          <div className="career-advisor-output-header">
+
+            <div className="career-advisor-output-info">
+              <h2>Target Blueprint: {careerGoal}</h2>
+
+              <span>
                 Customized recommendation based on {experienceLevel} profile
               </span>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button onClick={handleCopy} className="btn btn-secondary btn-sm">
-                {copied ? <Check size={16} color="var(--accent-success)" /> : <Copy size={16} />}
+            <div className="career-advisor-actions">
+              <button
+                onClick={handleCopy}
+                className="btn btn-secondary btn-sm"
+              >
+                {copied ? (
+                  <Check size={16} color="var(--accent-success)" />
+                ) : (
+                  <Copy size={16} />
+                )}
+
                 <span>{copied ? 'Copied' : 'Copy'}</span>
               </button>
-              <button onClick={handleDownload} className="btn btn-secondary btn-sm">
+
+              <button
+                onClick={handleDownload}
+                className="btn btn-secondary btn-sm"
+              >
                 <Download size={16} />
                 <span>Export Report</span>
               </button>
             </div>
+
           </div>
 
-          <div
-            style={{
-              backgroundColor: 'rgba(10, 14, 26, 0.5)',
-              padding: '1.75rem',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--border-primary)',
-              whiteSpace: 'pre-wrap',
-              lineHeight: 1.8,
-              fontSize: 'var(--font-base)',
-              color: 'var(--text-secondary)',
-            }}
-          >
+          {/* Advice Content */}
+          <div className="career-advisor-advice">
             {advice}
           </div>
+
         </div>
       )}
+
     </div>
   )
 }

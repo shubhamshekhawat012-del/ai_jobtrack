@@ -1,12 +1,21 @@
+
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { Bell, Search, LogOut, User } from 'lucide-react'
+import {
+  Bell,
+  Search,
+  LogOut,
+  User,
+  Menu,
+  X,
+} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-export default function Topbar() {
+export default function Topbar({ onMenuClick }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -16,121 +25,89 @@ export default function Topbar() {
   const handleSearchSubmit = (e) => {
     if (e.key === 'Enter' && searchTerm.trim()) {
       navigate(`/jobs?search=${encodeURIComponent(searchTerm.trim())}`)
+      setMobileSearchOpen(false)
     }
   }
 
   return (
-    <header style={{
-      height: 'var(--topbar-height)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0 var(--space-8)',
-      borderBottom: '1px solid var(--border-primary)',
-      background: 'rgba(10, 14, 26, 0.8)',
-      backdropFilter: 'blur(12px)',
-      position: 'sticky',
-      top: 0,
-      zIndex: 50,
-    }}>
-      {/* Search bar */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 'var(--space-3)',
-        background: 'var(--bg-input)',
-        border: '1px solid var(--border-primary)',
-        borderRadius: 'var(--radius-md)',
-        padding: '8px 14px',
-        width: 320,
-        transition: 'border-color var(--transition-fast)',
-      }}>
-        <Search size={16} color="var(--text-muted)" />
-        <input
-          type="text"
-          placeholder="Search jobs, titles, or skills (Enter)..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={handleSearchSubmit}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-primary)',
-            fontSize: 'var(--font-sm)',
-            width: '100%',
-          }}
-        />
+    <header className="app-topbar">
+      {/* Left section */}
+      <div className="topbar-left">
+        <button
+          className="mobile-menu-button"
+          onClick={onMenuClick}
+          aria-label="Open navigation menu"
+        >
+          <Menu size={23} />
+        </button>
+
+        {/* Desktop Search */}
+        <div className="topbar-search desktop-search">
+          <Search size={16} color="var(--text-muted)" />
+          <input
+            type="text"
+            placeholder="Search jobs, titles, or skills (Enter)..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchSubmit}
+          />
+        </div>
+
+        {/* Mobile Search Button */}
+        <button
+          className="mobile-search-button"
+          onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+          aria-label="Search jobs"
+        >
+          {mobileSearchOpen ? <X size={20} /> : <Search size={20} />}
+        </button>
       </div>
 
+      {/* Mobile Search Input */}
+      {mobileSearchOpen && (
+        <div className="mobile-search-panel">
+          <Search size={17} color="var(--text-muted)" />
+          <input
+            autoFocus
+            type="text"
+            placeholder="Search jobs or skills..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchSubmit}
+          />
+        </div>
+      )}
+
       {/* Right section */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-        {/* Notification */}
-        <button style={{
-          width: 38,
-          height: 38,
-          borderRadius: 'var(--radius-md)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--text-muted)',
-          transition: 'all var(--transition-fast)',
-          position: 'relative',
-        }}
+      <div className="topbar-right">
+        <button
+          className="topbar-icon-button"
+          aria-label="Notifications"
         >
           <Bell size={18} />
         </button>
 
-        {/* Separator */}
-        <div style={{ width: 1, height: 24, background: 'var(--border-primary)' }} />
+        <div className="topbar-separator" />
 
-        {/* User info */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-3)',
-            cursor: 'pointer',
-            padding: '4px 8px',
-            borderRadius: 'var(--radius-md)',
-            transition: 'background var(--transition-fast)',
-          }}
+        <button
+          className="topbar-user"
           onClick={() => navigate('/profile')}
         >
-          <div style={{
-            width: 34,
-            height: 34,
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--gradient-purple)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+          <div className="topbar-avatar">
             <User size={16} color="white" />
           </div>
-          <div style={{ lineHeight: 1.3 }}>
-            <p style={{ fontSize: 'var(--font-sm)', fontWeight: 500, color: 'var(--text-primary)' }}>
-              {user?.full_name || 'User'}
-            </p>
-            <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
-              {user?.email || ''}
-            </p>
-          </div>
-        </div>
 
-        {/* Logout */}
+          <div className="topbar-user-info">
+            <p>{user?.full_name || 'User'}</p>
+            <span>{user?.email || ''}</span>
+          </div>
+        </button>
+
         <button
+          className="topbar-icon-button desktop-logout"
           onClick={handleLogout}
           title="Logout"
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: 'var(--radius-md)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--text-muted)',
-            transition: 'all var(--transition-fast)',
-          }}
+          aria-label="Logout"
         >
           <LogOut size={18} />
         </button>
@@ -138,3 +115,4 @@ export default function Topbar() {
     </header>
   )
 }
+

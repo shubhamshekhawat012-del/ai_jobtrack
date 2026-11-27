@@ -1,17 +1,12 @@
-import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
   User,
-  Mail,
-  Calendar,
   ShieldCheck,
   LogOut,
   FileText,
   Send,
   Bookmark,
-  CheckCircle,
-  ExternalLink,
 } from 'lucide-react'
 
 export default function Profile() {
@@ -24,70 +19,38 @@ export default function Profile() {
   }
 
   return (
-    <div className="page-container animate-fade-in">
+    <div className="page-container animate-fade-in profile-page">
+      {/* Page Header */}
       <div className="page-header">
         <h1>Account & Profile</h1>
-        <p>Manage your account settings, credentials, and career tracking preferences.</p>
+        <p>
+          Manage your account settings, credentials, and career tracking
+          preferences.
+        </p>
       </div>
 
-      <div className="grid-3" style={{ alignItems: 'start' }}>
-        {/* Left Column: Profile Card */}
-        <div className="card" style={{ textAlign: 'center', padding: '2.5rem 1.5rem' }}>
-          <div
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: '50%',
-              background: 'var(--gradient-purple)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 30px rgba(139, 92, 246, 0.4)',
-              marginBottom: '1rem',
-            }}
-          >
+      <div className="profile-layout">
+        {/* Profile Card */}
+        <div className="card profile-main-card">
+          <div className="profile-avatar">
             <User size={40} color="white" />
           </div>
 
-          <h2 style={{ fontSize: 'var(--font-xl)', fontWeight: 700, color: 'var(--text-heading)' }}>
-            {user?.full_name || 'User Profile'}
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: 'var(--font-sm)', marginTop: '0.25rem' }}>
+          <h2>{user?.full_name || 'User Profile'}</h2>
+
+          <p className="profile-email">
             {user?.email}
           </p>
 
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              marginTop: '1rem',
-              padding: '4px 12px',
-              borderRadius: 'var(--radius-full)',
-              background: 'rgba(16, 185, 129, 0.15)',
-              color: 'var(--accent-success)',
-              fontSize: 'var(--font-xs)',
-              fontWeight: 600,
-            }}
-          >
+          <div className="profile-status">
             <ShieldCheck size={14} />
             <span>Active Member</span>
           </div>
 
-          <div
-            style={{
-              marginTop: '2rem',
-              paddingTop: '1.5rem',
-              borderTop: '1px solid var(--border-primary)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.75rem',
-            }}
-          >
+          <div className="profile-logout-section">
             <button
               onClick={handleSignOut}
-              className="btn btn-danger"
-              style={{ width: '100%', justifyContent: 'center' }}
+              className="btn btn-danger profile-logout-btn"
             >
               <LogOut size={16} />
               <span>Log Out</span>
@@ -95,159 +58,100 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Right 2 Columns: Account Details and Shortcuts */}
-        <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {/* Details Card */}
-          <div className="card">
-            <h3
-              style={{
-                fontSize: 'var(--font-lg)',
-                fontWeight: 600,
-                color: 'var(--text-heading)',
-                marginBottom: '1.5rem',
-              }}
-            >
-              Personal Information
-            </h3>
+        {/* Right Content */}
+        <div className="profile-content">
+          {/* Personal Information */}
+          <div className="card profile-info-card">
+            <h3>Personal Information</h3>
 
-            <div className="grid-2">
-              <div
-                style={{
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-input)',
-                  border: '1px solid var(--border-primary)',
-                }}
-              >
-                <div style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', marginBottom: '4px' }}>
+            <div className="profile-info-grid">
+              <div className="profile-info-item">
+                <div className="profile-info-label">
                   Full Name
                 </div>
-                <div style={{ fontSize: 'var(--font-base)', fontWeight: 600, color: 'var(--text-primary)' }}>
+                <div className="profile-info-value">
                   {user?.full_name || 'Not provided'}
                 </div>
               </div>
 
-              <div
-                style={{
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-input)',
-                  border: '1px solid var(--border-primary)',
-                }}
-              >
-                <div style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', marginBottom: '4px' }}>
+              <div className="profile-info-item">
+                <div className="profile-info-label">
                   Email Address
                 </div>
-                <div style={{ fontSize: 'var(--font-base)', fontWeight: 600, color: 'var(--text-primary)' }}>
+                <div className="profile-info-value">
                   {user?.email || 'Not provided'}
                 </div>
               </div>
 
-              <div
-                style={{
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-input)',
-                  border: '1px solid var(--border-primary)',
-                }}
-              >
-                <div style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', marginBottom: '4px' }}>
+              <div className="profile-info-item">
+                <div className="profile-info-label">
                   Account Identifier
                 </div>
-                <div style={{ fontSize: 'var(--font-base)', fontWeight: 600, color: 'var(--text-primary)' }}>
+                <div className="profile-info-value">
                   User #{user?.id || '—'}
                 </div>
               </div>
 
-              <div
-                style={{
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-input)',
-                  border: '1px solid var(--border-primary)',
-                }}
-              >
-                <div style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', marginBottom: '4px' }}>
+              <div className="profile-info-item">
+                <div className="profile-info-label">
                   Joined Date
                 </div>
-                <div style={{ fontSize: 'var(--font-base)', fontWeight: 600, color: 'var(--text-primary)' }}>
-                  {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Active'}
+                <div className="profile-info-value">
+                  {user?.created_at
+                    ? new Date(user.created_at).toLocaleDateString()
+                    : 'Active'}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Quick Hub Navigation */}
-          <div className="card">
-            <h3
-              style={{
-                fontSize: 'var(--font-lg)',
-                fontWeight: 600,
-                color: 'var(--text-heading)',
-                marginBottom: '1rem',
-              }}
-            >
-              Career Hub Shortcuts
-            </h3>
+          {/* Career Hub Shortcuts */}
+          <div className="card profile-shortcuts-card">
+            <h3>Career Hub Shortcuts</h3>
 
-            <div className="grid-3">
-              <Link
-                to="/resumes"
-                style={{
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                  border: '1px solid rgba(139, 92, 246, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  color: 'var(--text-primary)',
-                }}
-              >
-                <FileText size={20} color="var(--accent-primary)" />
+            <div className="profile-shortcuts-grid">
+              <Link to="/resumes" className="profile-shortcut resume-shortcut">
+                <FileText size={22} color="var(--accent-primary)" />
+
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 'var(--font-sm)' }}>Resumes</div>
-                  <div style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>Upload & Manage</div>
+                  <div className="profile-shortcut-title">
+                    Resumes
+                  </div>
+                  <div className="profile-shortcut-description">
+                    Upload & Manage
+                  </div>
                 </div>
               </Link>
 
               <Link
                 to="/applications"
-                style={{
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                  border: '1px solid rgba(59, 130, 246, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  color: 'var(--text-primary)',
-                }}
+                className="profile-shortcut applications-shortcut"
               >
-                <Send size={20} color="var(--accent-info)" />
+                <Send size={22} color="var(--accent-info)" />
+
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 'var(--font-sm)' }}>Applications</div>
-                  <div style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>Status Pipeline</div>
+                  <div className="profile-shortcut-title">
+                    Applications
+                  </div>
+                  <div className="profile-shortcut-description">
+                    Status Pipeline
+                  </div>
                 </div>
               </Link>
 
               <Link
                 to="/saved-jobs"
-                style={{
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'rgba(20, 184, 166, 0.1)',
-                  border: '1px solid rgba(20, 184, 166, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  color: 'var(--text-primary)',
-                }}
+                className="profile-shortcut bookmarks-shortcut"
               >
-                <Bookmark size={20} color="var(--gradient-teal)" />
+                <Bookmark size={22} color="var(--accent-secondary)" />
+
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 'var(--font-sm)' }}>Bookmarks</div>
-                  <div style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>Saved Roles</div>
+                  <div className="profile-shortcut-title">
+                    Bookmarks
+                  </div>
+                  <div className="profile-shortcut-description">
+                    Saved Roles
+                  </div>
                 </div>
               </Link>
             </div>

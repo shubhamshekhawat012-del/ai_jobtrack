@@ -1,3 +1,4 @@
+
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
@@ -17,7 +18,7 @@ import {
   Zap,
 } from 'lucide-react'
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -30,21 +31,77 @@ export default function Sidebar() {
   ]
 
   const aiSuiteNav = [
-    { name: 'Resume Analyzer', path: '/ai/resume-analyzer', icon: Sparkles, badge: 'AI' },
-    { name: 'Job Matching', path: '/ai/job-match', icon: Target, badge: 'AI' },
-    { name: 'Cover Letter', path: '/ai/cover-letter', icon: Wand2, badge: 'AI' },
-    { name: 'Interview Prep', path: '/ai/interview-prep', icon: MessageSquare, badge: 'AI' },
-    { name: 'Career Advisor', path: '/ai/career-advisor', icon: Compass, badge: 'AI' },
-    { name: 'Learning Roadmap', path: '/ai/learning-roadmap', icon: GraduationCap, badge: 'AI' },
+    { name: 'Resume Analyzer', path: '/ai/resume-analyzer', icon: Sparkles },
+    { name: 'Job Matching', path: '/ai/job-match', icon: Target },
+    { name: 'Cover Letter', path: '/ai/cover-letter', icon: Wand2 },
+    { name: 'Interview Prep', path: '/ai/interview-prep', icon: MessageSquare },
+    { name: 'Career Advisor', path: '/ai/career-advisor', icon: Compass },
+    { name: 'Learning Roadmap', path: '/ai/learning-roadmap', icon: GraduationCap },
   ]
 
   const handleLogout = () => {
     logout()
     navigate('/login')
+    onClose?.()
   }
+
+  const navLinkStyle = (isActive, ai = false) => ({
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    padding: '0.625rem 0.75rem',
+    borderRadius: 'var(--radius-md)',
+    fontSize: 'var(--font-sm)',
+    fontWeight: isActive ? 600 : 500,
+    color: isActive ? 'white' : 'var(--text-secondary)',
+    backgroundColor: isActive
+      ? ai
+        ? 'rgba(6, 182, 212, 0.15)'
+        : 'rgba(139, 92, 246, 0.15)'
+      : 'transparent',
+    border: isActive
+      ? ai
+        ? '1px solid rgba(6, 182, 212, 0.3)'
+        : '1px solid rgba(139, 92, 246, 0.3)'
+      : '1px solid transparent',
+    textDecoration: 'none',
+    transition: 'all var(--transition-fast)',
+  })
+
+  const renderNavItems = (items, ai = false) =>
+    items.map((item) => {
+      const Icon = item.icon
+
+      return (
+        <NavLink
+          key={item.path}
+          to={item.path}
+          onClick={onClose}
+          style={({ isActive }) => navLinkStyle(isActive, ai)}
+        >
+          <Icon size={18} style={{ flexShrink: 0 }} />
+          <span style={{ flex: 1 }}>{item.name}</span>
+          {ai && (
+            <span
+              style={{
+                fontSize: '0.625rem',
+                padding: '2px 6px',
+                borderRadius: 'var(--radius-sm)',
+                background: 'rgba(139, 92, 246, 0.2)',
+                color: 'var(--accent-primary)',
+                fontWeight: 700,
+              }}
+            >
+              AI
+            </span>
+          )}
+        </NavLink>
+      )
+    })
 
   return (
     <aside
+      className={`app-sidebar ${isOpen ? 'mobile-open' : ''}`}
       style={{
         width: 'var(--sidebar-width)',
         minWidth: 'var(--sidebar-width)',
@@ -55,7 +112,7 @@ export default function Sidebar() {
         borderRight: '1px solid var(--border-primary)',
         display: 'flex',
         flexDirection: 'column',
-        zIndex: 40,
+        zIndex: 1001,
         overflowY: 'auto',
       }}
     >
@@ -67,6 +124,7 @@ export default function Sidebar() {
           alignItems: 'center',
           gap: '0.75rem',
           borderBottom: '1px solid var(--border-primary)',
+          flexShrink: 0,
         }}
       >
         <div
@@ -79,10 +137,12 @@ export default function Sidebar() {
             alignItems: 'center',
             justifyContent: 'center',
             boxShadow: '0 0 16px rgba(139, 92, 246, 0.4)',
+            flexShrink: 0,
           }}
         >
           <Zap size={22} color="white" />
         </div>
+
         <div>
           <h1
             style={{
@@ -109,9 +169,17 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Nav List */}
-      <div style={{ flex: 1, padding: '1rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        {/* Main Section */}
+      {/* Navigation */}
+      <div
+        style={{
+          flex: 1,
+          padding: '1rem 0.75rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.5rem',
+        }}
+      >
+        {/* Main Navigation */}
         <div>
           <div
             style={{
@@ -125,37 +193,13 @@ export default function Sidebar() {
           >
             Overview & Tracking
           </div>
+
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            {mainNav.map((item) => {
-              const Icon = item.icon
-              return (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  style={({ isActive }) => ({
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.625rem 0.75rem',
-                    borderRadius: 'var(--radius-md)',
-                    fontSize: 'var(--font-sm)',
-                    fontWeight: isActive ? 600 : 500,
-                    color: isActive ? 'white' : 'var(--text-secondary)',
-                    backgroundColor: isActive ? 'rgba(139, 92, 246, 0.15)' : 'transparent',
-                    border: isActive ? '1px solid rgba(139, 92, 246, 0.3)' : '1px solid transparent',
-                    transition: 'all var(--transition-fast)',
-                    position: 'relative',
-                  })}
-                >
-                  <Icon size={18} style={{ flexShrink: 0 }} />
-                  <span style={{ flex: 1 }}>{item.name}</span>
-                </NavLink>
-              )
-            })}
+            {renderNavItems(mainNav)}
           </nav>
         </div>
 
-        {/* AI Career Suite */}
+        {/* AI Suite */}
         <div>
           <div
             style={{
@@ -184,49 +228,14 @@ export default function Sidebar() {
               GEN AI
             </span>
           </div>
+
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            {aiSuiteNav.map((item) => {
-              const Icon = item.icon
-              return (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  style={({ isActive }) => ({
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.625rem 0.75rem',
-                    borderRadius: 'var(--radius-md)',
-                    fontSize: 'var(--font-sm)',
-                    fontWeight: isActive ? 600 : 500,
-                    color: isActive ? 'white' : 'var(--text-secondary)',
-                    backgroundColor: isActive ? 'rgba(6, 182, 212, 0.15)' : 'transparent',
-                    border: isActive ? '1px solid rgba(6, 182, 212, 0.3)' : '1px solid transparent',
-                    transition: 'all var(--transition-fast)',
-                  })}
-                >
-                  <Icon size={18} style={{ flexShrink: 0 }} />
-                  <span style={{ flex: 1 }}>{item.name}</span>
-                  <span
-                    style={{
-                      fontSize: '0.625rem',
-                      padding: '2px 6px',
-                      borderRadius: 'var(--radius-sm)',
-                      background: 'rgba(139, 92, 246, 0.2)',
-                      color: 'var(--accent-primary)',
-                      fontWeight: 700,
-                    }}
-                  >
-                    {item.badge}
-                  </span>
-                </NavLink>
-              )
-            })}
+            {renderNavItems(aiSuiteNav, true)}
           </nav>
         </div>
       </div>
 
-      {/* Footer Profile & Logout */}
+      {/* Profile and Logout */}
       <div
         style={{
           padding: '1rem',
@@ -235,10 +244,12 @@ export default function Sidebar() {
           display: 'flex',
           flexDirection: 'column',
           gap: '0.5rem',
+          flexShrink: 0,
         }}
       >
         <NavLink
           to="/profile"
+          onClick={onClose}
           style={({ isActive }) => ({
             display: 'flex',
             alignItems: 'center',
@@ -247,7 +258,7 @@ export default function Sidebar() {
             borderRadius: 'var(--radius-md)',
             color: isActive ? 'white' : 'var(--text-secondary)',
             backgroundColor: isActive ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-            transition: 'all var(--transition-fast)',
+            textDecoration: 'none',
           })}
         >
           <div
@@ -264,6 +275,7 @@ export default function Sidebar() {
           >
             <User size={16} color="white" />
           </div>
+
           <div style={{ flex: 1, minWidth: 0, lineHeight: 1.2 }}>
             <div
               style={{
@@ -303,10 +315,10 @@ export default function Sidebar() {
             fontSize: 'var(--font-sm)',
             fontWeight: 500,
             width: '100%',
-            transition: 'background var(--transition-fast)',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
         >
           <LogOut size={16} />
           <span>Sign Out</span>

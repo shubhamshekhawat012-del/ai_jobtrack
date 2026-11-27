@@ -2,16 +2,11 @@ import { useState } from 'react'
 import api from '../services/api'
 import {
   GraduationCap,
-  Calendar,
-  Clock,
-  Sparkles,
   Copy,
   Check,
   Download,
   RefreshCw,
   AlertCircle,
-  MapPin,
-  CheckCircle2,
 } from 'lucide-react'
 
 export default function LearningRoadmap() {
@@ -28,6 +23,7 @@ export default function LearningRoadmap() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
     if (!careerGoal.trim() || !currentSkills.trim()) {
       setError('Career goal and current skills are required.')
       return
@@ -44,10 +40,14 @@ export default function LearningRoadmap() {
         available_hours_per_week: parseInt(hoursPerWeek),
         target_months: parseInt(targetMonths),
       })
+
       setRoadmap(res.data.roadmap)
     } catch (err) {
       console.error(err)
-      setError(err.response?.data?.detail || 'Failed to generate learning roadmap.')
+      setError(
+        err.response?.data?.detail ||
+          'Failed to generate learning roadmap.'
+      )
     } finally {
       setLoading(false)
     }
@@ -55,6 +55,7 @@ export default function LearningRoadmap() {
 
   const handleCopy = () => {
     if (!roadmap) return
+
     navigator.clipboard.writeText(roadmap)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
@@ -62,43 +63,53 @@ export default function LearningRoadmap() {
 
   const handleDownload = () => {
     if (!roadmap) return
+
     const blob = new Blob([roadmap], { type: 'text/markdown' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
+
     a.href = url
     a.download = `learning_roadmap_${targetMonths}_months.md`
     a.click()
+
     URL.revokeObjectURL(url)
   }
 
   return (
-    <div className="page-container animate-fade-in">
-      <div className="page-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <span className="badge" style={{ background: 'rgba(6, 182, 212, 0.2)', color: 'var(--accent-secondary)' }}>
+    <div className="page-container animate-fade-in learning-roadmap-page">
+      {/* Page Header */}
+      <div className="page-header learning-roadmap-header">
+        <div className="learning-roadmap-badge">
+          <span className="badge">
             CURRICULUM ARCHITECT
           </span>
         </div>
+
         <h1>AI Personalized Learning Roadmap</h1>
+
         <p>
-          Design a realistic, milestone-driven curriculum tailored to your specific schedule,
-          study availability, and target hiring timeline.
+          Design a realistic, milestone-driven curriculum tailored to your
+          specific schedule, study availability, and target hiring timeline.
         </p>
       </div>
 
+      {/* Error */}
       {error && (
-        <div className="alert alert-error">
+        <div className="alert alert-error learning-roadmap-error">
           <AlertCircle size={18} />
           <span>{error}</span>
         </div>
       )}
 
       {/* Configuration Card */}
-      <div className="card" style={{ marginBottom: '2rem', backgroundColor: 'var(--bg-secondary)' }}>
+      <div className="card learning-roadmap-form-card">
         <form onSubmit={handleSubmit}>
-          <div className="grid-2">
+          <div className="learning-roadmap-grid">
             <div className="form-group">
-              <label className="form-label">Target Role / Career Goal *</label>
+              <label className="form-label">
+                Target Role / Career Goal *
+              </label>
+
               <input
                 type="text"
                 className="form-input"
@@ -110,7 +121,10 @@ export default function LearningRoadmap() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Current Experience Level</label>
+              <label className="form-label">
+                Current Experience Level
+              </label>
+
               <select
                 className="form-input form-select"
                 value={experienceLevel}
@@ -125,7 +139,10 @@ export default function LearningRoadmap() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Current Skillset & Knowledge Base *</label>
+            <label className="form-label">
+              Current Skillset & Knowledge Base *
+            </label>
+
             <input
               type="text"
               className="form-input"
@@ -136,14 +153,19 @@ export default function LearningRoadmap() {
             />
           </div>
 
-          <div className="grid-2">
-            <div className="form-group">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label className="form-label">Available Study Hours per Week</label>
-                <span style={{ fontSize: 'var(--font-sm)', fontWeight: 600, color: 'var(--accent-primary)' }}>
+          {/* Study Settings */}
+          <div className="learning-roadmap-grid">
+            <div className="form-group learning-roadmap-slider-group">
+              <div className="learning-roadmap-slider-header">
+                <label className="form-label">
+                  Available Study Hours per Week
+                </label>
+
+                <span className="learning-roadmap-hours">
                   {hoursPerWeek} hrs/week
                 </span>
               </div>
+
               <input
                 type="range"
                 min="3"
@@ -151,17 +173,26 @@ export default function LearningRoadmap() {
                 step="1"
                 value={hoursPerWeek}
                 onChange={(e) => setHoursPerWeek(e.target.value)}
-                style={{ width: '100%', accentColor: 'var(--accent-primary)', marginTop: '8px' }}
+                className="learning-roadmap-range"
               />
+
+              <div className="learning-roadmap-range-labels">
+                <span>3 hours</span>
+                <span>40 hours</span>
+              </div>
             </div>
 
-            <div className="form-group">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label className="form-label">Target Timeline Duration</label>
-                <span style={{ fontSize: 'var(--font-sm)', fontWeight: 600, color: 'var(--accent-secondary)' }}>
+            <div className="form-group learning-roadmap-slider-group">
+              <div className="learning-roadmap-slider-header">
+                <label className="form-label">
+                  Target Timeline Duration
+                </label>
+
+                <span className="learning-roadmap-months">
                   {targetMonths} {targetMonths === 1 ? 'Month' : 'Months'}
                 </span>
               </div>
+
               <input
                 type="range"
                 min="1"
@@ -169,16 +200,29 @@ export default function LearningRoadmap() {
                 step="1"
                 value={targetMonths}
                 onChange={(e) => setTargetMonths(e.target.value)}
-                style={{ width: '100%', accentColor: 'var(--accent-secondary)', marginTop: '8px' }}
+                className="learning-roadmap-range learning-roadmap-range-secondary"
               />
+
+              <div className="learning-roadmap-range-labels">
+                <span>1 month</span>
+                <span>12 months</span>
+              </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
-            <button type="submit" disabled={loading} className="btn btn-primary" style={{ padding: '12px 28px' }}>
+          {/* Generate Button */}
+          <div className="learning-roadmap-submit">
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary learning-roadmap-generate-btn"
+            >
               {loading ? (
                 <>
-                  <RefreshCw size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                  <RefreshCw
+                    size={18}
+                    style={{ animation: 'spin 1s linear infinite' }}
+                  />
                   <span>Constructing Learning Schedule...</span>
                 </>
               ) : (
@@ -192,54 +236,45 @@ export default function LearningRoadmap() {
         </form>
       </div>
 
-      {/* Roadmap Output View */}
+      {/* Roadmap Output */}
       {roadmap && !loading && (
-        <div className="card animate-fade-in-up" style={{ padding: '2rem' }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              borderBottom: '1px solid var(--border-primary)',
-              paddingBottom: '1rem',
-              marginBottom: '1.5rem',
-              flexWrap: 'wrap',
-              gap: '1rem',
-            }}
-          >
-            <div>
-              <h2 style={{ fontSize: 'var(--font-xl)', fontWeight: 600, color: 'var(--text-heading)' }}>
+        <div className="card animate-fade-in-up learning-roadmap-output">
+          <div className="learning-roadmap-output-header">
+            <div className="learning-roadmap-output-title">
+              <h2>
                 {targetMonths}-Month Blueprint: {careerGoal}
               </h2>
-              <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
+
+              <span>
                 Paced at {hoursPerWeek} hours/week • Milestone & Project-Based
               </span>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button onClick={handleCopy} className="btn btn-secondary btn-sm">
-                {copied ? <Check size={16} color="var(--accent-success)" /> : <Copy size={16} />}
+            <div className="learning-roadmap-output-actions">
+              <button
+                onClick={handleCopy}
+                className="btn btn-secondary btn-sm"
+              >
+                {copied ? (
+                  <Check size={16} color="var(--accent-success)" />
+                ) : (
+                  <Copy size={16} />
+                )}
+
                 <span>{copied ? 'Copied' : 'Copy'}</span>
               </button>
-              <button onClick={handleDownload} className="btn btn-secondary btn-sm">
+
+              <button
+                onClick={handleDownload}
+                className="btn btn-secondary btn-sm"
+              >
                 <Download size={16} />
                 <span>Export Roadmap</span>
               </button>
             </div>
           </div>
 
-          <div
-            style={{
-              backgroundColor: 'rgba(10, 14, 26, 0.5)',
-              padding: '1.75rem',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--border-primary)',
-              whiteSpace: 'pre-wrap',
-              lineHeight: 1.8,
-              fontSize: 'var(--font-base)',
-              color: 'var(--text-secondary)',
-            }}
-          >
+          <div className="learning-roadmap-content">
             {roadmap}
           </div>
         </div>
